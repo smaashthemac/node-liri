@@ -6,7 +6,7 @@ var spotify = require('spotify');
 var request = require('request');
 var fs = require('fs');
 
-var dataKeys = require('./keys.js');
+var keys = require('./keys.js');
 
 
 // ======== TWITTER STUFF ======== // 
@@ -15,26 +15,20 @@ var dataKeys = require('./keys.js');
 var getTweets = function() {
 	console.log('Tweet function: ACTIVATE');
 	// makes sure we've got the twitter keys from the keys.js file
-	var client = new twitter(dataKeys.twitterKeys);
+	var client = new twitter(keys.twitterKeys);
 	// hard codes twitter username and will return 20 tweets
 	var params = { screen_name: 'smaashthemaac', count: 20 };
 	// "ajax" call, essentially, that gets the information from twitter
 	client.get('statuses/user_timeline', params, function(error, tweets, response) {
 		// returns response
 		if (!error) {
-			// empty array to push the data into
-			var data = [];
-			// loops through data, pushes, and adds commentary
-			for (var i = 0; i < tweets.length; i++) {
-				// pushes to data array
-				data.push({
-					'created at: ' : tweets[i].created_at,
-					'tweets: ' : tweets[i].text,
-				}); // end data pushed
-			} // end for loop
-			// prints data to bash
-			console.log(data);
-		} // end if loop
+	      for (var i = 0; i < tweets.length; i++) {
+	        console.log(tweets[i].created_at);
+	        console.log("");
+	        console.log(tweets[i].text);
+	        console.log("-----------------------------------");
+	      }
+    	} // end if loop
 	}); // end get request
 }; // end getTweets function
 
@@ -47,10 +41,10 @@ var getArtistNames = function(artist) {
 };
 
 // begin function
-var getMeSpotify = function(artist) {
+var getMeSpotify = function(songName) {
 	// if the user doesn't enter a song, it will find Toto's Africa
 	if (songName == undefined) {
-		songName = 'Africa';
+		songName = 'Toto';
 	};
 	// "ajax" call that gets information from spotify api
 	spotify.search({ type: 'track', query: songName }, function (error, data) {
@@ -65,18 +59,15 @@ var getMeSpotify = function(artist) {
 		// array into which the song data will be pushed
 		var data = [];
 
-		// loops through data, pushes, and adds commentary
+		// loops through data, adds commentary
 		for (var i = 0; i < songs.length; i++) {
-			// pushes data to array
-			data.push({
-				'artist(s)': songs[i].artists.map(getArtistNames),
-		        'song name: ': songs[i].name,
-		        'preview song: ': songs[i].preview_url,
-		        'album: ': songs[i].album.name,
-			}); // ends data pushed
-		} // end for loop
-		// prints data to bash
-		console.log(data);
+	      console.log(i);
+	      console.log("artist(s): " + songs[i].artists.map(getArtistNames));
+	      console.log("song name: " + songs[i].name);
+	      console.log("preview song: " + songs[i].preview_url);
+	      console.log("album: " + songs[i].album.name);
+	      console.log("-----------------------------------");
+	    }
 	}); // end get request
 }; // end getMeSpotify function
 
@@ -92,34 +83,26 @@ var getMeMovie = function(movieName) {
 	}
 
 	// omdb query url
-	var queryURL = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=full&tomatoes=true&r=json";
+	var urlHit = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=full&tomatoes=true&r=json";
 
-	// "ajax" call that gets information from omdb api
-	request(queryURL, function(error, response, body) {
-		// returns response
-		if (!error && response.statusCode === 200) {
-			// array into which the movie data will be pushed
-			var data = [];
-			// variable for json data
-			var jsonData = JSON.parse(body);
-
-			// pushes the following data into array
-			data.push({
-				'Title: ' : jsonData.Title,
-			    'Year: ' : jsonData.Year,
-			    'Rated: ' : jsonData.Rated,
-			    'IMDB Rating: ' : jsonData.imdbRating,
-			    'Country: ' : jsonData.Country,
-			    'Language: ' : jsonData.Language,
-			    'Plot: ' : jsonData.Plot,
-			    'Actors: ' : jsonData.Actors,
-			    'Rotten Tomatoes Rating: ' : jsonData.tomatoRating,
-			    'Rotton Tomatoes URL: ' : jsonData.tomatoURL,	
-			}); // end pushed data
-			// prints data to bash
-			console.log(data);
-		} // end if statement
-	}); // end omdb request
+		// request info
+	  request(urlHit, function(error, response, body) {
+	  	// log error, if any
+	    if (!error && response.statusCode === 200) {
+	      var jsonData = JSON.parse(body);
+	      // display all this data junk
+	      console.log("Title: " + jsonData.Title);
+	      console.log("Year: " + jsonData.Year);
+	      console.log("Rated: " + jsonData.Rated);
+	      console.log("IMDB Rating: " + jsonData.imdbRating);
+	      console.log("Country: " + jsonData.Country);
+	      console.log("Language: " + jsonData.Language);
+	      console.log("Plot: " + jsonData.Plot);
+	      console.log("Actors: " + jsonData.Actors);
+	      console.log("Rotten Tomatoes Rating: " + jsonData.tomatoRating);
+	      console.log("Rotton Tomatoes URL: " + jsonData.tomatoURL);
+	    }
+  });
 }; // end getMeMovie function
 
 
@@ -156,7 +139,7 @@ var pick = function(caseData, functionData) {
 			// jumps out of the loop
 			break;
 		// if the case - the user's first argument - is "spotify-this-song"...
-		case 'spotify-this-song':
+		case 'spotify-this-artist':
 			// then run the getMeSpotify function (with the user's second argument - the song name)
 			getMeSpotify(functionData);
 			// jumps out of the loop
